@@ -15,7 +15,7 @@ cd ..
 
 echo "Building Nginx with ModSecurity-NGINX connector..."
 cd vesta-nginx
-./configure --with-compat --add-dynamic-module=../ModSecurity-nginx
+./auto/configure --with-compat --add-dynamic-module=../ModSecurity-nginx
 make
 make install
 cd ..
