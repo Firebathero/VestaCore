@@ -1,11 +1,10 @@
 #!/bin/bash
-
 set -e
 
-cd "$(dirname "$0")/.."
+cd /workspaces/VestaCore
 
 echo "Building ModSecurity..."
-cd modsecurity
+cd ModSecurity
 git submodule init
 git submodule update
 ./build.sh
@@ -14,20 +13,17 @@ make
 make install
 cd ..
 
-echo "Building Vesta-NGINX..."
+echo "Building Nginx with ModSecurity-NGINX connector..."
 cd vesta-nginx
-./configure --add-dynamic-module=../modsecurity-nginx
+./configure --with-compat --add-dynamic-module=../ModSecurity-nginx
 make
-make install DESTDIR=../build/nginx
+make install
 cd ..
 
-echo "Building ModSecurity-NGINX connector..."
-cd modsecurity-nginx
-./configure
-make
+echo "Copying ModSecurity module to Nginx modules directory..."
+cp vesta-nginx/objs/ngx_http_modsecurity_module.so vesta-nginx/modules/
 
-# Copy the dynamic module to build/
-cp objs/ngx_http_modsecurity_module.so ../build/nginx/modules/
-cd ..
+echo "Starting Nginx..."
+vesta-nginx/sbin/nginx -c vesta-nginx/conf/nginx.conf
 
-echo "Build complete!"
+echo "Build complete. Nginx with ModSecurity is running."
